@@ -15,18 +15,48 @@ Process/transform the data (if necessary) into a format suitable for your analys
 
 ---
 
-```{r}
+
+```r
 z <- getwd()
 fileurl = 'https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip'
 download.file(fileurl,destfile = './repdata-data-activity.zip',method='curl')
+```
+
+```
+## Warning: running command 'curl
+## "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip" -o
+## "./repdata-data-activity.zip"' had status 127
+```
+
+```
+## Warning in download.file(fileurl, destfile =
+## "./repdata-data-activity.zip", : download had nonzero exit status
+```
+
+```r
 unzip(zipfile='./repdata-data-activity.zip',list=FALSE,overwrite=TRUE)
 activity <- read.csv("activity.csv")
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:stats':
+## 
+##     filter
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(knitr)
 library(ggplot2)
 library(lattice)
 a <- group_by(activity,date)
-
 ```
 
 ---
@@ -44,17 +74,67 @@ Calculate and report the mean and median of the total number of steps taken per 
 
 ---
 
-```{r}
+
+```r
 b <- summarize(a,TotalSteps=sum(steps,na.rm=TRUE)) 
 c <- mean(b$TotalSteps,na.rm=TRUE)
 d <- quantile(b$TotalSteps,probs = 0.5)
 print("Total # of Steps taken per day:")
-print(b)
-print("Histogram of the Total Steps")
-hist(b$TotalSteps,xlab="Total Number of Steps Per Day",main = "Histogram of Total Number of Steps")
-cat("Mean # of Total Steps each day =",c)
-cat("Median of Total Steps each day =",d)
+```
 
+```
+## [1] "Total # of Steps taken per day:"
+```
+
+```r
+print(b)
+```
+
+```
+## Source: local data frame [61 x 2]
+## 
+##          date TotalSteps
+## 1  2012-10-01          0
+## 2  2012-10-02        126
+## 3  2012-10-03      11352
+## 4  2012-10-04      12116
+## 5  2012-10-05      13294
+## 6  2012-10-06      15420
+## 7  2012-10-07      11015
+## 8  2012-10-08          0
+## 9  2012-10-09      12811
+## 10 2012-10-10       9900
+## ..        ...        ...
+```
+
+```r
+print("Histogram of the Total Steps")
+```
+
+```
+## [1] "Histogram of the Total Steps"
+```
+
+```r
+hist(b$TotalSteps,xlab="Total Number of Steps Per Day",main = "Histogram of Total Number of Steps")
+```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
+
+```r
+cat("Mean # of Total Steps each day =",c)
+```
+
+```
+## Mean # of Total Steps each day = 9354.23
+```
+
+```r
+cat("Median of Total Steps each day =",d)
+```
+
+```
+## Median of Total Steps each day = 10395
 ```
 
 ---
@@ -68,14 +148,24 @@ Which 5-minute interval, on average across all the days in the dataset, contains
 ---
 
 
-```{r}
+
+```r
 a <- group_by(activity,interval)
 b <- summarize(a,AverageStepsPerDay=mean(steps,na.rm=TRUE))
 plot(x=b$interval,y=b$AverageStepsPerDay,type="l",xlab="Interval",ylab="Average # of Steps per Day",main="Average # of Steps per Day by Interval")
+```
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
+
+```r
 c <- max(b$AverageStepsPerDay,na.rm=TRUE)
 d <- b$AverageStepsPerDay == c
 e <- b$interval[d]
 cat("The 5-minute interval which on average across all the days in the dataset contains the maximum number of steps is ",e)
+```
+
+```
+## The 5-minute interval which on average across all the days in the dataset contains the maximum number of steps is  835
 ```
 
 ---
@@ -101,12 +191,17 @@ Make a histogram of the total number of steps taken each day and Calculate and r
 
 ---
 
-```{r}
 
+```r
 NumberofNAs <- sum(is.na(activity$steps)) + sum(is.na(activity$date)) + sum(is.na(activity$interval))
 cat("Total Number of NAs = ",NumberofNAs)
+```
 
+```
+## Total Number of NAs =  2304
+```
 
+```r
 a <- group_by(activity,interval,date)
 b <- summarize(a,NumberofNAs=sum(is.na(steps)),NumberofProperEntries=sum(!(is.na(steps))),AverageStepsPerDay=mean(steps,na.rm=TRUE))
 c <- group_by(activity,interval)
@@ -134,11 +229,25 @@ g <- summarize(f,TotalSteps=sum(steps,na.rm=TRUE))
 h <- mean(g$TotalSteps,na.rm=TRUE)
 i <- quantile(g$TotalSteps,probs = 0.5)
 cat("Mean=",h)
-cat("Median=",i)
-
-hist(g$TotalSteps,xlab="Total Number of Steps Per Day",main = "Histogram of Total Number of Steps")
+```
 
 ```
+## Mean= 10766.19
+```
+
+```r
+cat("Median=",i)
+```
+
+```
+## Median= 10766.19
+```
+
+```r
+hist(g$TotalSteps,xlab="Total Number of Steps Per Day",main = "Histogram of Total Number of Steps")
+```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) 
 
 ---
 
@@ -153,8 +262,8 @@ Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minut
 ---
 
 
-```{r}
 
+```r
 a <- group_by(e,date)
 a$Date2 <- as.Date(a$date)
 a$Weekday <- weekdays(a$Date2)
@@ -167,12 +276,9 @@ c <- summarize(b,AverageStepsPerDay=mean(steps,na.rm=TRUE))
 
 library(lattice)
 xyplot(AverageStepsPerDay~interval|WeekDayEnd,data=c,layout=c(1,2),type="l")
-
-
-
-
-
 ```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
 
 
 
